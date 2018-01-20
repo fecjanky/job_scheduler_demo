@@ -3,4 +3,5 @@
 
 TEST_CASE("dummy","[dummy]"){
     REQUIRE(1 == 1);
+    REQUIRE(0 == 0);
 }
