@@ -12,4 +12,6 @@ add_executable(scheduler_test ${test_source_files})
 
 target_link_libraries(scheduler_test  scheduler_lib  Catch_lib)
 
+set_property(TARGET scheduler_test PROPERTY CXX_STANDARD 17)
+
 add_test(NAME test_scheduler COMMAND scheduler_test WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
