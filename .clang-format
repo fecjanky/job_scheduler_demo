@@ -4,4 +4,7 @@ NamespaceIndentation: None
 SortIncludes: 'true'
 FixNamespaceComments  : 'true'
 ColumnLimit : 80
+AllowShortFunctionsOnASingleLine : 'true'
+BreakBeforeBraces : Stroustrup
+Language : Cpp
 ...
