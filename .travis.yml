@@ -26,8 +26,7 @@ matrix:
       env:
         - CC_USED=clang-5.0
         - CXX_USED=clang++-5.0
-        - CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=SANITIZE"
-        - ASAN_OPTIONS="check_initialization_order=1:detect_stack_use_after_return=1"
+        - CMAKE_FLAGS=-DCMAKE_BUILD_TYPE=Release
 
 before_install:
   - wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.tar.gz 

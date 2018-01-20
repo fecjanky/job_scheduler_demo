@@ -15,20 +15,26 @@ namespace job_sheduler {
 
 namespace detail {
 
-template <typename T> void unused_variable(T&&) {}
+template <typename T>
+void unused_variable(T&&)
+{
+}
 
-template <typename EdgeT, typename VertexF> struct vertex_type {
+template <typename EdgeT, typename VertexF>
+struct vertex_type {
 private:
     using vertices = std::remove_reference_t<std::remove_cv_t<decltype(
         std::declval<VertexF>()(std::declval<EdgeT>()))>>;
 
-    template <typename V> static auto from_type_func(V&& v)
+    template <typename V>
+    static auto from_type_func(V&& v)
     {
         auto[from, to] = v;
         unused_variable(to);
         return from;
     }
-    template <typename V> static auto to_type_func(V&& v)
+    template <typename V>
+    static auto to_type_func(V&& v)
     {
         auto[from, to] = v;
         unused_variable(from);
@@ -45,7 +51,8 @@ template <typename EdgeT, typename VertexF>
 using vertex_type_t = typename vertex_type<EdgeT, VertexF>::type;
 } // namespace detail
 
-template <typename EdgeT, typename VertexF> class graph {
+template <typename EdgeT, typename VertexF>
+class graph {
 public:
     using vertex_type = detail::vertex_type_t<EdgeT, VertexF>;
 
@@ -67,6 +74,8 @@ private:
     static constexpr size_t EDGES_IN = 2;
     static constexpr size_t IMPL_EDGES_OUT = 0;
     static constexpr size_t IMPL_EDGES_IN = 1;
+
+    /*************************************/
 
     std::vector<std::tuple<vertex_const_iterator_t, edges_t, edges_t>> m_graph;
     std::shared_ptr<const impl> m_impl;
@@ -90,6 +99,8 @@ private:
 
         template <typename Iterator>
         void init_edges(Iterator begin, Iterator end);
+
+        void checkDAG();
 
         vertex_const_iterator_t find_vertex(const vertex_type& vertex);
 
@@ -126,8 +137,8 @@ inline graph<EdgeT, VertexF>::graph(
     }
     std::make_heap(
         m_graph.begin(), m_graph.end(), [](const auto& lhs, const auto& rhs) {
-            return !(std::get<EDGES_IN>(lhs).size()
-                < std::get<EDGES_IN>(rhs).size());
+            return std::get<EDGES_IN>(lhs).size()
+                > std::get<EDGES_IN>(rhs).size();
         });
 }
 
