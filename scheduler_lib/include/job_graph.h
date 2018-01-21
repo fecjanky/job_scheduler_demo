@@ -96,6 +96,9 @@ public:
 
     bool is_done() const noexcept;
 
+    std::vector<vertex_type> next_schedule();
+    std::vector<std::vector<vertex_type>> schedule();
+
 private:
     void restore_heap();
 
@@ -279,6 +282,47 @@ inline void graph<VertexT>::check_entry()
     if (!m_view.empty() && !m_view.front()->in.empty()) {
         throw std::runtime_error("no entry point in graph");
     }
+}
+
+template <typename VertexT>
+inline auto graph<VertexT>::next_schedule() -> std::vector<vertex_type>
+{
+    if (is_done()) {
+        throw std::runtime_error("all jobs are done");
+    }
+    view_t done;
+    while (!m_view.empty() && m_view.front()->in.empty()) {
+        std::pop_heap(m_view.begin(), m_view.end(), graph_compare());
+        done.push_back(m_view.back());
+        m_view.pop_back();
+    }
+    // remove edges attached to vertices
+    std::for_each(done.begin(), done.end(), [this](const auto& d) {
+        auto& v = *d;
+        // remove out edges
+        std::for_each(v.out.begin(), v.out.end(), [&](auto p) {
+            p->in.erase(
+                std::remove(p->in.begin(), p->in.end(), std::addressof(v)),
+                p->in.end());
+        });
+    });
+    restore_heap();
+    check_entry();
+    std::vector<vertex_type> res;
+    res.reserve(done.size());
+    std::transform(done.begin(), done.end(), std::back_inserter(res),
+        [](const auto& d) { return std::move(d->elem); });
+    return res;
+}
+
+template <typename VertexT>
+inline auto graph<VertexT>::schedule() -> std::vector<std::vector<vertex_type>>
+{
+    std::vector<std::vector<vertex_type>> res;
+    while (!is_done()) {
+        res.push_back(next_schedule());
+    }
+    return res;
 }
 
 } // namespace job_sheduler
