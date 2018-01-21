@@ -37,3 +37,8 @@ TEST_CASE(
         { std::make_pair(std::string("a"), std::string("b")),
             std::make_pair(std::string("b"), std::string("a")) }));
 }
+
+TEST_CASE("job graph that has vertices is not done", "[graph]")
+{
+    // auto graph = make_graph()
+}
