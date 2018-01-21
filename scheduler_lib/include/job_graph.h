@@ -61,7 +61,7 @@ public:
     using edges_t = std::vector<vertex_ref_pointer>;
     struct vertex {
         explicit vertex(vertex_type e)
-            : elem(e)
+            : elem(std::move(e))
         {
         }
         vertex_type elem;
