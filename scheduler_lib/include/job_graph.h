@@ -97,10 +97,10 @@ public:
     bool is_done() const noexcept;
 
     std::vector<vertex_type> next_schedule();
-    std::vector<std::vector<vertex_type>> schedule();
+    std::vector<std::vector<vertex_type>> get_full_schedule();
 
 private:
-    void restore_heap();
+    void restore_heap_property();
 
     void add_vertex_unique(const vertex_type& v);
     template <typename VertexF, typename Iterator>
@@ -112,7 +112,7 @@ private:
 
     vertex& find_vertex(const vertex_type& key);
 
-    void check_entry();
+    void check_entry_point_exisits();
     static auto graph_compare()
     {
         return [](const auto& lhs, const auto& rhs) {
@@ -166,8 +166,8 @@ inline graph<VertexT>::graph(VertexF vertex_func, Iterator begin, Iterator end)
     add_vertices(vertex_func, begin, end);
     add_edges(vertex_func, begin, end);
     add_view();
-    restore_heap();
-    check_entry();
+    restore_heap_property();
+    check_entry_point_exisits();
 }
 
 template <typename VertexT>
@@ -241,7 +241,7 @@ inline bool graph<VertexT>::is_done() const noexcept
 }
 
 template <typename VertexT>
-inline void graph<VertexT>::restore_heap()
+inline void graph<VertexT>::restore_heap_property()
 {
     std::make_heap(m_view.begin(), m_view.end(), graph_compare());
 }
@@ -277,7 +277,7 @@ inline auto graph<VertexT>::find_vertex(const vertex_type& key) -> vertex&
 }
 
 template <typename VertexT>
-inline void graph<VertexT>::check_entry()
+inline void graph<VertexT>::check_entry_point_exisits()
 {
     if (!m_view.empty() && !m_view.front()->in.empty()) {
         throw std::runtime_error("no entry point in graph");
@@ -306,8 +306,8 @@ inline auto graph<VertexT>::next_schedule() -> std::vector<vertex_type>
                 p->in.end());
         });
     });
-    restore_heap();
-    check_entry();
+    restore_heap_property();
+    check_entry_point_exisits();
     std::vector<vertex_type> res;
     res.reserve(done.size());
     std::transform(done.begin(), done.end(), std::back_inserter(res),
@@ -316,7 +316,8 @@ inline auto graph<VertexT>::next_schedule() -> std::vector<vertex_type>
 }
 
 template <typename VertexT>
-inline auto graph<VertexT>::schedule() -> std::vector<std::vector<vertex_type>>
+inline auto graph<VertexT>::get_full_schedule()
+    -> std::vector<std::vector<vertex_type>>
 {
     std::vector<std::vector<vertex_type>> res;
     while (!is_done()) {

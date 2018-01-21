@@ -83,7 +83,7 @@ TEST_CASE("shedule on the reference graph", "[graph]")
         std::make_pair("c"s, "e"s), std::make_pair("d"s, "e"s),
         std::make_pair("h"s, "j"s), std::make_pair("i"s, "j"s),
         std::make_pair("e"s, "f"s), std::make_pair("j"s, "f"s) });
-    auto sched = graph.schedule();
+    auto sched = graph.get_full_schedule();
     REQUIRE(graph.is_done());
     REQUIRE(sched.size() == 5);
     REQUIRE(sched[0].size() == 2);
