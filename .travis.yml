@@ -21,6 +21,7 @@ matrix:
       install:
         - pip install --user urllib3[secure] cpp-coveralls
       after_success:
+        - which $GCOV_USED
         - coveralls --gcov $(which $GCOV_USED) --include scheduler_lib  --include scheduler --gcov-options '\-lmpcu' --root .. --build-root .
 
     - compiler: clang
@@ -43,7 +44,6 @@ before_script:
   - export CXX=$CXX_USED
   - $CC --version
   - $CXX --version
-  - which $GCOV_USED
   - cmake ../ $CMAKE_FLAGS
 
 script:
