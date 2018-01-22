@@ -6,7 +6,7 @@ enable_testing()
 
 project(scheduler_test CXX)
 
-set(test_source_files  src/main.cpp src/test_graph.cpp)
+set(test_source_files  src/main.cpp src/test_graph.cpp src/test_dot_parser.cpp)
 
 add_executable(scheduler_test "${test_source_files}")
 
