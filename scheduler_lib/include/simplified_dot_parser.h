@@ -68,7 +68,7 @@ inline auto parse_simplified_dot(std::istream& dot_text)
                 "error in simplified dot parser state machine");
         };
     }
-    if (state != parse_state::END) {
+    if (i != 0 && state != parse_state::END) {
         throw std::runtime_error("error in simplified dot format");
     }
     return res;

@@ -8,6 +8,55 @@
 using namespace std::string_literals;
 using namespace job_sheduler::utils;
 
+TEST_CASE("dot parser on a invalid graphs", "[dot parser]")
+{
+    SECTION("missing start")
+    {
+        constexpr auto simple_dot = R"#(    "a" -> "b";
+    "b" -> "c";
+    })#";
+        std::istringstream iss(simple_dot);
+        REQUIRE_THROWS(parse_simplified_dot(iss));
+    }
+    SECTION("missing end")
+    {
+        constexpr auto simple_dot = R"#(digraph G {
+    "a" -> "b";
+    "b" -> "c";
+    )#";
+        std::istringstream iss(simple_dot);
+        REQUIRE_THROWS(parse_simplified_dot(iss));
+    }
+    SECTION("invalid edges")
+    {
+        constexpr auto simple_dot = R"#(digraph G {
+    "a" -> "b";
+    "b" ;
+    })#";
+        std::istringstream iss(simple_dot);
+        REQUIRE_THROWS(parse_simplified_dot(iss));
+    }
+}
+
+TEST_CASE("dot parser on a edge cases", "[dot parser]")
+{
+    SECTION("empty graph")
+    {
+        constexpr auto simple_dot = R"#(digraph G {
+    })#";
+        std::istringstream iss(simple_dot);
+        auto res = parse_simplified_dot(iss);
+        REQUIRE(res.size() == 0);
+    }
+
+    SECTION("empty file")
+    {
+        std::istringstream iss{};
+        auto res = parse_simplified_dot(iss);
+        REQUIRE(res.size() == 0);
+    }
+}
+
 TEST_CASE("dot parser on a simple graph", "[dot parser]")
 {
     constexpr auto simple_dot = R"#(digraph G {
