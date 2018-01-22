@@ -57,6 +57,27 @@ TEST_CASE(" shedule on a trivial graph a->b is a,b", "[graph]")
     REQUIRE(sched_2[0] == "b"s);
 }
 
+TEST_CASE("invoking next shcedule on a graph that is_done "
+          "results in exception",
+    "[graph]")
+{
+    auto graph = create_test_graph();
+    graph.get_full_schedule();
+    REQUIRE(graph.is_done());
+    REQUIRE_THROWS(graph.next_schedule());
+}
+
+TEST_CASE("invoking get full  shcedule on a graph that is_done "
+          "results in an empty schedule",
+    "[graph]")
+{
+    auto graph = create_test_graph();
+    graph.get_full_schedule();
+    REQUIRE(graph.is_done());
+    auto res = graph.get_full_schedule();
+    REQUIRE(res.empty());
+}
+
 TEST_CASE("shedule on a diamond graph is a,b-c,d", "[graph]")
 {
     auto graph
