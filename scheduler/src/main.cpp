@@ -1,11 +1,3 @@
-#ifdef _WIN32
-#include <experimental/filesystem> // C++-standard header file name
-namespace fs = std::experimental::filesystem::v1;
-#else
-#include <filesystem>
-namespace fs = std::filesystem;
-#endif
-
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -28,8 +20,7 @@ std::pair<std::istream*, std::unique_ptr<std::ifstream>> get_input_stream(
         is = &std::cin;
     }
     else if (argc == 2) {
-        fs::path file_path(argv[1]);
-        ifs = std::make_unique<std::ifstream>(file_path.string());
+        ifs = std::make_unique<std::ifstream>(argv[1]);
         is = ifs.get();
     }
     else {
@@ -40,9 +31,7 @@ std::pair<std::istream*, std::unique_ptr<std::ifstream>> get_input_stream(
 
 void print_usage(std::ostream& os, int argc, char* argv[])
 {
-    fs::path file_path(argv[0]);
-
-    os << "Usage: " << file_path.filename() << " [<filename>]" << '\n'
+    os << "Usage: " << argv[0] << " [<filename>]" << '\n'
        << R"#(
  filename (optional) - if given reads from file, 
                        else from standard input)#"
