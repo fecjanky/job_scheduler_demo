@@ -16,11 +16,12 @@ matrix:
       env:
         - CC_USED=gcc-7
         - CXX_USED=g++-7
+        - GCOV_USED=gcov-7
         - CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=COVERAGE"
       install:
         - pip install --user urllib3[secure] cpp-coveralls
       after_success:
-        - coveralls --gcov $(which gcov-7) --include include --gcov-options '\-lmpcu' --root .. --build-root .
+        - coveralls --gcov $(which $GCOV_USED) --include scheduler_lib --gcov-options '\-lmpcu' --root .. --build-root .
 
     - compiler: clang
       env:
@@ -40,6 +41,9 @@ before_script:
   - cd build
   - export CC=$CC_USED
   - export CXX=$CXX_USED
+  - $CC --version
+  - $CXX --version
+  - which $GCOV_USED
   - cmake ../ $CMAKE_FLAGS
 
 script:
