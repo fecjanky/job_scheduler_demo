@@ -54,11 +54,13 @@ using vertex_type_t = typename vertex_type<EdgeT, VertexF>::type;
 template <typename VertexT>
 class graph {
 public:
-    using vertex_type = VertexT;
     struct vertex;
+
+    using vertex_type = VertexT;
     using vertex_ref_pointer = vertex*;
     using vertex_ref_const_pointer = const vertex*;
     using edges_t = std::vector<vertex_ref_pointer>;
+
     struct vertex {
         explicit vertex(vertex_type e)
             : elem(std::move(e))
@@ -68,6 +70,7 @@ public:
         edges_t out;
         edges_t in;
     };
+
     using graph_t = std::vector<vertex>;
     using graph_iterator = typename graph_t::iterator;
     using graph_const_iterator = typename graph_t::const_iterator;
@@ -82,21 +85,28 @@ public:
     graph(VertexF vertex_func, Iterator begin, Iterator end);
 
     graph(graph&&) = default;
+
     graph& operator=(graph&&) = default;
-    // TODO implement copy
+
+    // TODO implement copy, disabled for now
     graph(const graph&) = delete;
+
     graph& operator=(const graph&) = delete;
+
     ~graph() = default;
 
     view_const_iterator find(const vertex_type& key) const;
+
     view_const_iterator end() const;
 
     size_t num_vertices() const noexcept;
+
     size_t num_edges() const noexcept;
 
     bool is_done() const noexcept;
 
     std::vector<vertex_type> next_schedule();
+
     std::vector<std::vector<vertex_type>> get_full_schedule();
 
 private:
@@ -109,6 +119,9 @@ private:
     void add_edges(VertexF func, Iterator begin, Iterator end);
 
     void add_view();
+    view_t get_all_done_vertices();
+    void remove_edges(view_iterator begin, view_iterator end);
+    static std::vector<vertex_type> to_vertices(view_t view);
 
     vertex& find_vertex(const vertex_type& key);
 
@@ -283,21 +296,22 @@ inline void graph<VertexT>::check_entry_point_exisits()
         throw std::runtime_error("no entry point in graph");
     }
 }
-
 template <typename VertexT>
-inline auto graph<VertexT>::next_schedule() -> std::vector<vertex_type>
+inline auto graph<VertexT>::get_all_done_vertices() -> view_t
 {
-    if (is_done()) {
-        throw std::runtime_error("all jobs are done");
-    }
     view_t done;
     while (!m_view.empty() && m_view.front()->in.empty()) {
         std::pop_heap(m_view.begin(), m_view.end(), graph_compare());
         done.push_back(m_view.back());
         m_view.pop_back();
     }
-    // remove edges attached to vertices
-    std::for_each(done.begin(), done.end(), [this](const auto& d) {
+    return done;
+}
+
+template <typename VertexT>
+inline void graph<VertexT>::remove_edges(view_iterator begin, view_iterator end)
+{
+    std::for_each(begin, end, [this](const auto& d) {
         auto& v = *d;
         // remove out edges
         std::for_each(v.out.begin(), v.out.end(), [&](auto p) {
@@ -306,13 +320,29 @@ inline auto graph<VertexT>::next_schedule() -> std::vector<vertex_type>
                 p->in.end());
         });
     });
-    restore_heap_property();
-    check_entry_point_exisits();
+}
+
+template <typename VertexT>
+inline auto graph<VertexT>::to_vertices(view_t view) -> std::vector<vertex_type>
+{
     std::vector<vertex_type> res;
-    res.reserve(done.size());
-    std::transform(done.begin(), done.end(), std::back_inserter(res),
+    res.reserve(view.size());
+    std::transform(view.begin(), view.end(), std::back_inserter(res),
         [](const auto& d) { return std::move(d->elem); });
     return res;
+}
+
+template <typename VertexT>
+inline auto graph<VertexT>::next_schedule() -> std::vector<vertex_type>
+{
+    if (is_done()) {
+        throw std::runtime_error("all jobs are done");
+    }
+    auto done = get_all_done_vertices();
+    remove_edges(done.begin(), done.end());
+    restore_heap_property();
+    check_entry_point_exisits();
+    return to_vertices(std::move(done));
 }
 
 template <typename VertexT>
